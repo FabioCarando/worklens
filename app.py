@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 
 from core.database import init_db, get_tasks
+from core.scoring import analyze_task
 
 
 # --------------------------------------------------
@@ -124,24 +125,37 @@ st.markdown(
 # --------------------------------------------------
 
 tasks = get_tasks()
-
 if tasks:
 
-    df = pd.DataFrame(tasks)
+    analyses = [
+        analyze_task(task)
+        for task in tasks
+    ]
 
-    total_tasks = len(df)
+    total_tasks = len(tasks)
 
-    total_minutes = (
-        df["minutes_per_execution"].fillna(0)
-        * df["executions_per_period"].fillna(0)
-    ).sum()
+    total_hours = sum(
+        result["monthly_hours"]
+        for result in analyses
+    )
 
-    total_hours = total_minutes / 60
+    potential_hours_saved = sum(
+        result["potential_hours_saved"]
+        for result in analyses
+    )
+
+    automation_opportunities = sum(
+        1
+        for result in analyses
+        if result["automation_score"] >= 60
+    )
 
 else:
 
     total_tasks = 0
     total_hours = 0
+    potential_hours_saved = 0
+    automation_opportunities = 0
 
 
 # --------------------------------------------------
@@ -158,20 +172,20 @@ with col1:
 
 with col2:
     st.metric(
-        "Recorded workload",
+        "Monthly workload",
         f"{total_hours:.1f} h",
     )
 
 with col3:
     st.metric(
         "Automation opportunities",
-        "—",
+        automation_opportunities,
     )
 
 with col4:
     st.metric(
         "Potential time saved",
-        "—",
+        f"{potential_hours_saved:.1f} h",
     )
 
 
