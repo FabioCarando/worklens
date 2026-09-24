@@ -4,6 +4,8 @@
 
 WorkLens is an open-source, local-first task diary designed to help individuals and organizations identify repetitive work and discover high-impact automation opportunities.
 
+![WorkLens Dashboard](assets/worklens-dashboard.png)
+
 Instead of asking *"What should we automate?"*, WorkLens starts with a simpler question:
 
 > **Where is your time actually going?**
